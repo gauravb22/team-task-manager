@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TaskItemRepository extends JpaRepository<TaskItem, Long> {
 
+    List<TaskItem> findAllByOrderByDueDateAscCreatedAtDesc();
+
     List<TaskItem> findByAssignedToOrderByDueDateAsc(UserAccount assignedTo);
 
     long countByStatus(TaskStatus status);
