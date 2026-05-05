@@ -1,15 +1,21 @@
+// Login page - handle signup and login forms
+
+// Run when page loads
 document.addEventListener("DOMContentLoaded", () => {
+  // If user is already logged in, go to dashboard
   if (TTM.getUser()) {
     window.location.href = "/dashboard.html";
     return;
   }
 
+  // Attach form submission handlers
   document.getElementById("loginForm").addEventListener("submit", handleLogin);
   document.getElementById("signupForm").addEventListener("submit", handleSignup);
 });
 
+// Handle login form submission
 async function handleLogin(event) {
-  event.preventDefault();
+  event.preventDefault();  // Don't refresh page
   TTM.hideAlert("authAlert");
 
   const form = event.currentTarget;
@@ -20,22 +26,24 @@ async function handleLogin(event) {
   const password = form.password.value;
 
   try {
+    // Send login request to backend
     const user = await TTM.request("/api/auth/login", {
       method: "POST",
-      auth: false,
+      auth: false,  // Don't send auth header (not logged in yet)
       body: { email, password }
     });
-    TTM.saveLogin(user, password);
-    window.location.href = "/dashboard.html";
+    TTM.saveLogin(user, password);  // Save login info
+    window.location.href = "/dashboard.html";  // Go to dashboard
   } catch (error) {
-    TTM.showAlert("authAlert", error.message);
+    TTM.showAlert("authAlert", error.message);  // Show error
   } finally {
-    reset();
+    reset();  // Restore button
   }
 }
 
+// Handle signup form submission
 async function handleSignup(event) {
-  event.preventDefault();
+  event.preventDefault();  // Don't refresh page
   TTM.hideAlert("authAlert");
 
   const form = event.currentTarget;
@@ -47,9 +55,10 @@ async function handleSignup(event) {
   const role = form.role.value;
 
   try {
+    // Send signup request to backend
     const user = await TTM.request("/api/auth/signup", {
       method: "POST",
-      auth: false,
+      auth: false,  // Don't send auth header (not logged in yet)
       body: {
         name: form.name.value.trim(),
         email,
@@ -57,7 +66,7 @@ async function handleSignup(event) {
         role
       }
     });
-    TTM.saveLogin(user, password);
+    TTM.saveLogin(user, password);  // Save login info
     window.location.href = "/dashboard.html";
   } catch (error) {
     TTM.showAlert("authAlert", error.message);
