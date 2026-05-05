@@ -13,7 +13,20 @@ public interface TaskItemRepository extends JpaRepository<TaskItem, Long> {
 
     List<TaskItem> findByAssignedToOrderByDueDateAsc(UserAccount assignedTo);
 
+    long countByAssignedTo(UserAccount assignedTo);
+
     long countByStatus(TaskStatus status);
 
+    long countByStatusNot(TaskStatus status);
+
+    long countByAssignedToAndStatus(UserAccount assignedTo, TaskStatus status);
+
+    long countByAssignedToAndStatusNot(UserAccount assignedTo, TaskStatus status);
+
     long countByDueDateBeforeAndStatusNot(LocalDate date, TaskStatus status);
+
+    long countByAssignedToAndDueDateBeforeAndStatusNot(
+            UserAccount assignedTo,
+            LocalDate date,
+            TaskStatus status);
 }
