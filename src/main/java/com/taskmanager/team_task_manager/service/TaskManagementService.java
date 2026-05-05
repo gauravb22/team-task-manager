@@ -31,6 +31,9 @@ public class TaskManagementService {
 
     @Transactional
     public TaskResponse createTask(CreateTaskRequest request) {
+        if (request.projectId() == null) {
+            throw new IllegalArgumentException("Project ID is required");
+        }
         ProjectWorkspace project = projectWorkspaceRepository.findById(request.projectId())
                 .orElseThrow(() -> new EntityNotFoundException("Project not found"));
 
@@ -100,6 +103,9 @@ public class TaskManagementService {
     }
 
     private TaskItem findTask(Long taskId) {
+        if (taskId == null) {
+            throw new IllegalArgumentException("Task ID is required");
+        }
         return taskItemRepository.findById(taskId)
                 .orElseThrow(() -> new EntityNotFoundException("Task not found"));
     }
