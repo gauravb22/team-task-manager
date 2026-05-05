@@ -1,31 +1,38 @@
-let currentUser = null;
-let allTasks = [];
+// Tasks page - create, view, and manage tasks
 
+let currentUser = null;
+let allTasks = [];  // Store all tasks for filtering
+
+// Run when page loads
 document.addEventListener("DOMContentLoaded", () => {
-  currentUser = TTM.requireLogin();
+  currentUser = TTM.requireLogin();  // Check if logged in
   if (!currentUser) {
     return;
   }
 
-  TTM.setUserPill(currentUser);
+  TTM.setUserPill(currentUser);  // Show user name
   document.getElementById("logoutBtn").addEventListener("click", () => TTM.logout());
-  document.getElementById("statusFilter").addEventListener("change", renderTasks);
+  document.getElementById("statusFilter").addEventListener("change", renderTasks);  // Filter by status
 
   const taskForm = document.getElementById("taskForm");
+  
+  // Only admins can create tasks
   if (currentUser.role === "ADMIN") {
     taskForm.addEventListener("submit", createTask);
-    loadProjectsForForm();
+    loadProjectsForForm();  // Load projects dropdown
   } else {
-    document.getElementById("taskCreatePanel").classList.add("d-none");
+    document.getElementById("taskCreatePanel").classList.add("d-none");  // Hide create form
   }
 
-  loadTasks();
+  loadTasks();  // Load and show all tasks
 });
 
+// Load projects and populate dropdown in create task form
 async function loadProjectsForForm() {
   try {
     const projects = await TTM.request("/api/projects");
     const select = document.getElementById("projectId");
+    // Create options for each project
     select.innerHTML = `<option value="">Select project</option>` + projects.map((project) => (
       `<option value="${project.id}">${TTM.escapeHtml(project.name)}</option>`
     )).join("");
@@ -34,28 +41,36 @@ async function loadProjectsForForm() {
   }
 }
 
+// Load all tasks from backend
 async function loadTasks() {
   try {
     allTasks = await TTM.request("/api/tasks");
-    renderTasks();
+    renderTasks();  // Display on page
   } catch (error) {
     TTM.showAlert("taskAlert", error.message);
   }
 }
 
+// Display tasks in table (with optional filtering)
 function renderTasks() {
   const filter = document.getElementById("statusFilter").value;
   const rows = document.getElementById("taskRows");
   const empty = document.getElementById("emptyTasks");
+  
+  // Filter tasks by status if a filter is selected
   const tasks = filter === "ALL" ? allTasks : allTasks.filter((task) => task.status === filter);
 
   if (!tasks.length) {
+    // No tasks to show
     rows.innerHTML = "";
     empty.classList.remove("d-none");
     return;
   }
 
+  // Hide "no tasks" message
   empty.classList.add("d-none");
+  
+  // Create table row for each task
   rows.innerHTML = tasks.map((task) => `
     <tr class="${task.overdue ? "overdue-row" : ""}">
       <td>
@@ -86,6 +101,7 @@ function renderTasks() {
     </tr>
   `).join("");
 
+  // Attach button click handlers
   rows.querySelectorAll("[data-save-status]").forEach((button) => {
     button.addEventListener("click", () => updateStatus(button.dataset.saveStatus));
   });
